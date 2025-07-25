@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codingpotato42's Portfolio</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #bb86fc; /* A nice purple accent */
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            margin-bottom: 2rem;
+        }
+        
+        #loading-message {
+            font-style: italic;
+            color: #a0a0a0;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            text-align: left;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(187, 134, 252, 0.15);
+        }
+
+        .project-card h3 {
+            margin-top: 0;
+            color: #03dac6; /* A teal accent */
+        }
+        
+        .project-card p {
+            color: #b0b0b0;
+            line-height: 1.6;
+            flex-grow: 1; /* Makes the description take up available space */
+        }
+
+        .project-card a {
+            display: inline-block;
+            margin-top: 1rem;
+            text-decoration: none;
+            color: #bb86fc;
+            font-weight: bold;
+        }
+        
+        .project-card a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Codingpotato42</h1>
+        <p class="subtitle">My vibe coding journey into games, data, and beyond.</p>
+
+        <h2>Projects</h2>
+        <p id="loading-message">Fetching projects from GitHub...</p>
+        
+        <!-- The project cards will be dynamically inserted here by JavaScript -->
+        <div id="projects-container" class="projects-grid"></div>
+    </div>
+
+    <script>
+        // --- GitHub API Logic ---
+        const username = 'Codingpotato42';
+        const apiUrl = `https://api.github.com/users/${username}/repos`;
+        const projectsContainer = document.getElementById('projects-container');
+        const loadingMessage = document.getElementById('loading-message');
+
+        // Use fetch to get data from the GitHub API
+        fetch(apiUrl)
+            .then(response => response.json()) // Convert the response to JSON
+            .then(repositories => {
+                loadingMessage.style.display = 'none'; // Hide the loading message
+
+                // Loop through each repository
+                for (const repo of repositories) {
+                    // We only want to show actual project websites, not this portfolio itself
+                    if (repo.has_pages && repo.name !== `${username}.github.io`) {
+                        
+                        // Create the project card element
+                        const projectCard = document.createElement('div');
+                        projectCard.className = 'project-card';
+
+                        // Create the project title
+                        const title = document.createElement('h3');
+                        title.textContent = repo.name;
+
+                        // Create the project description
+                        const description = document.createElement('p');
+                        description.textContent = repo.description || 'No description provided.'; // Use a default text if no description
+
+                        // Create the link to the live project
+                        const link = document.createElement('a');
+                        link.href = `https://${username}.github.io/${repo.name}/`;
+                        link.textContent = 'View Project →';
+                        link.target = '_blank'; // Open in a new tab
+
+                        // Add all the new elements to the card
+                        projectCard.appendChild(title);
+                        projectCard.appendChild(description);
+                        projectCard.appendChild(link);
+
+                        // Add the completed card to our container on the page
+                        projectsContainer.appendChild(projectCard);
+                    }
+                }
+            })
+            .catch(error => {
+                // If something goes wrong (e.g., network error)
+                loadingMessage.textContent = 'Failed to load projects. Please try again later.';
+                console.error('Error fetching GitHub repos:', error);
+            });
+    </script>
+</body>
+</html>
